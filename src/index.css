@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+.sidebar {
+  background-color: #1a1f37;
+  background: linear-gradient(99.84deg, #060b26fb 5%, #15215e 100%);
+  border: none;
+}
