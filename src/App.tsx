@@ -8,7 +8,7 @@ import Dashboard from "./page/dashboard";
 import Product from "./page/product";
 import Login from "./page/login";
 function App() {
-  function ProtectedRoute({ children }) {
+  function ProtectedRoute({ children }: any) {
     const user = localStorage.getItem("user");
     console.log(user);
 
