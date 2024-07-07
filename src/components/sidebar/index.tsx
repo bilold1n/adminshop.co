@@ -1,8 +1,12 @@
-import { ProductOutlined, HomeOutlined } from "@ant-design/icons";
+import {
+  ProductOutlined,
+  AccountBookOutlined,
+  AppstoreAddOutlined,
+} from "@ant-design/icons";
 import { Menu } from "antd";
 import type { GetProp, MenuProps } from "antd";
 import { NavLink } from "react-router-dom";
-
+import { useLocation } from "react-router-dom";
 type MenuItem = GetProp<MenuProps, "items">[number];
 
 const items: MenuItem[] = [
@@ -12,27 +16,31 @@ const items: MenuItem[] = [
     disabled: true,
   },
   {
-    key: "1",
-    icon: <HomeOutlined />,
-    label: (
-      <NavLink style={{ marginTop: "-10px" }} to={"/dashboard"}>
-        Dashboard
-      </NavLink>
-    ),
+    key: "dashboard",
+    icon: <AccountBookOutlined />,
+    label: <NavLink to={"/dashboard"}>Dashboard</NavLink>,
   },
   {
-    key: "2",
+    key: "Addproduct",
+    icon: <AppstoreAddOutlined />,
+    label: <NavLink to={"/Addproduct"}>Add Product</NavLink>,
+  },
+  {
+    key: "product",
     icon: <ProductOutlined />,
-    label: <NavLink to={"/product"}>Product</NavLink>,
+    label: <NavLink to={"/product"}>Products</NavLink>,
   },
 ];
 
 export default function Sidebar() {
+  const { pathname } = useLocation();
+  console.log(pathname);
+
   return (
     <>
       <Menu
         style={{ width: 256, height: "100vh" }}
-        defaultSelectedKeys={["1"]}
+        defaultSelectedKeys={[pathname.slice(1)]}
         items={items}
         theme="dark"
         className="sidebar "
