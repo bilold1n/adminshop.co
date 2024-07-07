@@ -4,10 +4,10 @@ import {
   AppstoreAddOutlined,
 } from "@ant-design/icons";
 import { Menu } from "antd";
-import type { GetProp, MenuProps } from "antd";
+import type { MenuProps } from "antd";
 import { NavLink } from "react-router-dom";
 import { useLocation } from "react-router-dom";
-type MenuItem = GetProp<MenuProps, "items">[number];
+type MenuItem = Required<MenuProps>["items"][number];
 
 const items: MenuItem[] = [
   {
@@ -34,16 +34,14 @@ const items: MenuItem[] = [
 
 export default function Sidebar() {
   const { pathname } = useLocation();
-  console.log(pathname);
-
   return (
     <>
       <Menu
         style={{ width: 256, height: "100vh" }}
-        defaultSelectedKeys={[pathname.slice(1)]}
+        selectedKeys={[pathname.slice(1)]}
         items={items}
         theme="dark"
-        className="sidebar "
+        className="sidebar"
       />
     </>
   );
