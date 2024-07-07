@@ -7,7 +7,7 @@ export default function Layout() {
       <Sidebar />
       <div className="flex flex-col w-full">
         <Header />
-        <main>
+        <main className="">
           <Outlet></Outlet>
         </main>
       </div>

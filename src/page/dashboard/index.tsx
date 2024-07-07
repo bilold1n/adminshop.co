@@ -1,3 +1,3 @@
 export default function Dashboard() {
-  return <div>Dashboard1</div>;
+  return <div className="text-white "> lorem900</div>;
 }

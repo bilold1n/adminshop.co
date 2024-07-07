@@ -4,7 +4,7 @@ import { useLocation } from "react-router-dom";
 export default function Header() {
   const { pathname } = useLocation();
   return (
-    <header className="bg-[#060B26] p-4">
+    <header className="bg-[#060B26] p-4 shadow-lg shadow-[#20223b]  mb-[20px]">
       <span className="mr-2 text-[#a19e9e]">Pages:</span>
       <span className="text-white">
         <HomeOutlined color="white" />{" "}
