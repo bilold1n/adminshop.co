@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { Button, Form, Input, Select, Modal, message } from "antd";
-import usegetdata from "../hooks/usegetdata";
 import Table from "../table";
 import UploadImage from "./uploadimage";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
-import { storege } from "../../../firebase/config";
+import { db, storege } from "../../../firebase/config";
+import { addDoc, collection } from "firebase/firestore";
 
 interface FileType {
   name: string;
@@ -12,35 +12,55 @@ interface FileType {
 }
 
 const Product: React.FC = () => {
+  const [productdata, setproductdata] = useState({
+    name: "",
+    description: "",
+    image: "",
+    price: "",
+    rating: "",
+    category: "",
+    color: "",
+  });
+  console.log(productdata);
+
   const [file, setFile] = useState<FileType[]>([]);
-  console.log(file);
-
-  const onFinish = async (values: any) => {
-    console.log(values);
-
+  const [modal2Open, setModal2Open] = useState(false);
+  const onFinish = async () => {
     if (file.length > 0) {
       const storageRef = ref(storege, "products/" + file[0].name);
-      console.log("loading");
 
       try {
         const snapshot = await uploadBytes(storageRef, file[0].originFileObj);
-        console.log("Uploaded a blob or file!", snapshot);
+        console.log(snapshot);
+
         const url = await getDownloadURL(
           ref(storege, "products/" + file[0].name)
         );
         console.log(url);
+        setproductdata({ ...productdata, image: url });
+        console.log(productdata);
+        const docRef = await addDoc(collection(db, "products"), {
+          ...productdata,
+        });
+        console.log(docRef);
+        setproductdata({
+          name: "",
+          description: "",
+          image: "",
+          price: "",
+          rating: "",
+          category: "",
+          color: "",
+        });
       } catch (error) {
         console.error("Upload failed:", error);
       }
     } else {
       message.error("Please upload an image");
     }
+
+    setModal2Open(false); // Close the modal after submission
   };
-
-  const { data, isPending, error } = usegetdata("products", false);
-  console.log(data, isPending, error);
-
-  const [modal2Open, setModal2Open] = useState(false);
 
   return (
     <section>
@@ -104,8 +124,20 @@ const Product: React.FC = () => {
               className="container flex flex-col items-center gap-5 justify-center"
               key="add-product-form"
             >
-              <Input required placeholder="Title" key="title-input" />
               <Input
+                required
+                placeholder="Title"
+                key="title-input"
+                value={productdata.name}
+                onChange={(e) =>
+                  setproductdata({ ...productdata, name: e.target.value })
+                }
+              />
+              <Input
+                value={productdata.price}
+                onChange={(e) =>
+                  setproductdata({ ...productdata, price: e.target.value })
+                }
                 required
                 type="number"
                 minLength={4}
@@ -117,11 +149,19 @@ const Product: React.FC = () => {
                 required
                 className="cursor-pointer"
                 key="color-input"
+                value={productdata.color}
+                onChange={(e) =>
+                  setproductdata({ ...productdata, color: e.target.value })
+                }
               />
               <Select
                 placeholder="Filter by category"
                 className="w-full"
                 key="filter-category-select"
+                value={productdata.category}
+                onChange={(value) =>
+                  setproductdata({ ...productdata, category: value })
+                }
               >
                 <Select.Option value="men" key="men-category">
                   Men
@@ -134,6 +174,13 @@ const Product: React.FC = () => {
                 required
                 placeholder="Description"
                 key="description-input"
+                value={productdata.description}
+                onChange={(e) =>
+                  setproductdata({
+                    ...productdata,
+                    description: e.target.value,
+                  })
+                }
               />
               <UploadImage setFile={setFile} key="upload-image" />
             </Form>
