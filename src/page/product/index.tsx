@@ -1,44 +1,141 @@
-import { Button, Form, Input, Select, Modal } from "antd";
+import React, { useState } from "react";
+import { Button, Form, Input, Select, Modal, message } from "antd";
 import usegetdata from "../hooks/usegetdata";
-import { useState } from "react";
 import Table from "../table";
-export default function Product() {
+import UploadImage from "./uploadimage";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { storege } from "../../../firebase/config";
+
+interface FileType {
+  name: string;
+  originFileObj: File;
+}
+
+const Product: React.FC = () => {
+  const [file, setFile] = useState<FileType[]>([]);
+  console.log(file);
+
+  const onFinish = async (values: any) => {
+    console.log(values);
+
+    if (file.length > 0) {
+      const storageRef = ref(storege, "products/" + file[0].name);
+      console.log("loading");
+
+      try {
+        const snapshot = await uploadBytes(storageRef, file[0].originFileObj);
+        console.log("Uploaded a blob or file!", snapshot);
+        const url = await getDownloadURL(
+          ref(storege, "products/" + file[0].name)
+        );
+        console.log(url);
+      } catch (error) {
+        console.error("Upload failed:", error);
+      }
+    } else {
+      message.error("Please upload an image");
+    }
+  };
+
   const { data, isPending, error } = usegetdata("products", false);
   console.log(data, isPending, error);
+
   const [modal2Open, setModal2Open] = useState(false);
+
   return (
     <section>
       <div className="container">
-        <div className=" text-white border-b-4 pb-4 flex items-center justify-between">
+        <div className="text-white border-b-4 pb-4 flex items-center justify-between">
           <h1 className="text-3xl font-bold">Product</h1>
           <div>
             <Form className="flex items-center gap-5">
-              <Input className="w-[230px]" placeholder="Search" />
-              <Select placeholder="Filter by category" className="w-[180px]">
-                <Select.Option value="all">All</Select.Option>
+              <Input
+                className="w-[230px]"
+                placeholder="Search"
+                key="search-input"
+              />
+              <Select
+                placeholder="Filter by category"
+                className="w-[180px]"
+                key="filter-category"
+              >
+                <Select.Option value="all" key="all-category">
+                  All
+                </Select.Option>
               </Select>
-              <Select placeholder="Sort by" className="w-[110px]">
-                <Select.Option value="rating">Rating ⭐</Select.Option>
-                <Select.Option value="price">Price💲</Select.Option>
-                <Select.Option value="text">A-z 📝</Select.Option>
-                <Select.Option value="!text">Z-a 📝</Select.Option>
+              <Select placeholder="Sort by" className="w-[110px]" key="sort-by">
+                <Select.Option value="rating" key="sort-rating">
+                  Rating ⭐
+                </Select.Option>
+                <Select.Option value="price" key="sort-price">
+                  Price💲
+                </Select.Option>
+                <Select.Option value="text" key="sort-text">
+                  A-z 📝
+                </Select.Option>
+                <Select.Option value="!text" key="sort-reverse-text">
+                  Z-a 📝
+                </Select.Option>
               </Select>
-              <Button type="primary" onClick={() => setModal2Open(true)}>
+              <Button
+                type="primary"
+                onClick={() => setModal2Open(true)}
+                key="add-product-button"
+              >
                 Add Product
               </Button>
             </Form>
           </div>
           <Modal
-            title="Vertically centered modal dialog"
+            title={
+              <p className="text-2xl font-bold text-center mb-[20px]">
+                Add Product
+              </p>
+            }
             centered
+            width={450}
             open={modal2Open}
-            onOk={() => setModal2Open(false)}
+            onOk={onFinish}
             onCancel={() => setModal2Open(false)}
+            key="add-product-modal"
           >
-            <Form className="flex items-center gap-5">
-              <Input className="w-[230px]" placeholder="Search" />
-              <Input className="w-[230px]" placeholder="Search" />
-              <Input className="w-[230px]" placeholder="Search" />
+            <Form
+              onFinish={onFinish}
+              className="container flex flex-col items-center gap-5 justify-center"
+              key="add-product-form"
+            >
+              <Input required placeholder="Title" key="title-input" />
+              <Input
+                required
+                type="number"
+                minLength={4}
+                placeholder="Price"
+                key="price-input"
+              />
+              <Input
+                type="color"
+                required
+                className="cursor-pointer"
+                key="color-input"
+              />
+              <Select
+                placeholder="Filter by category"
+                className="w-full"
+                key="filter-category-select"
+              >
+                <Select.Option value="men" key="men-category">
+                  Men
+                </Select.Option>
+                <Select.Option value="women" key="women-category">
+                  Women
+                </Select.Option>
+              </Select>
+              <Input
+                required
+                placeholder="Description"
+                key="description-input"
+              />
+              <UploadImage setFile={setFile} key="upload-image" />
             </Form>
           </Modal>
         </div>
@@ -48,4 +145,6 @@ export default function Product() {
       </div>
     </section>
   );
-}
+};
+
+export default Product;
