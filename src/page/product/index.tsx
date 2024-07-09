@@ -52,6 +52,7 @@ const Product: React.FC = () => {
           const docRef = await addDoc(collection(db, "products"), {
             ...productdata,
           });
+          setModal2Open(false);
           console.log(docRef);
           setproductdata({
             title: "",
@@ -62,7 +63,6 @@ const Product: React.FC = () => {
             category: "",
             color: "",
           });
-          setModal2Open(false);
         } catch (error) {
           console.error("Upload failed:", error);
         }
