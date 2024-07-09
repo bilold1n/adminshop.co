@@ -1,30 +1,47 @@
-import { useState, useEffect, useMemo } from "react";
-import { collection, getDocs } from "firebase/firestore";
+import { useState, useEffect } from "react";
+import {
+  collection,
+  getDocs,
+  DocumentData,
+  QuerySnapshot,
+} from "firebase/firestore";
 import { db } from "../../../firebase/config";
 
-export default function usegetdata(collectionName: string, fresh: string) {
-  const [data, setdata] = useState([]);
-  const [ispending, setispending] = useState(true);
-  const [error, seterror] = useState({ status: false, massege: "" });
+// Error interfeysini yaratamiz
+interface Error {
+  status: boolean;
+  message: string;
+}
+
+// Custom hook ni aniqlaymiz
+export default function useGetData(collectionName: string, fresh: boolean) {
+  // State turlari aniqlanadi
+  const [data, setData] = useState<DocumentData[]>([]);
+  const [isPending, setIsPending] = useState<boolean>(true);
+  const [error, setError] = useState<Error>({ status: false, message: "" });
+
   useEffect(() => {
-    const getdata = async () => {
+    const getData = async () => {
       try {
-        const documen: any = [];
-        const querySnapshot = await getDocs(collection(db, collectionName));
+        const documents: DocumentData[] = [];
+        const querySnapshot: QuerySnapshot<DocumentData> = await getDocs(
+          collection(db, collectionName)
+        );
         querySnapshot.forEach((doc) => {
-          // doc.data() is never undefined for query doc snapshots
+          // doc.data() hech qachon query doc snapshots uchun undefined emas
           console.log(doc.id, " => ", doc.data());
-          documen.push({ id: doc.id, ...doc.data() });
+          documents.push({ id: doc.id, ...doc.data() });
         });
-        setdata(documen);
-      } catch (error) {
-        seterror({ status: true, massage: " error.massage" });
+        setData(documents);
+      } catch (error: any) {
+        setError({ status: true, message: error.message });
       } finally {
-        setispending(false);
+        setIsPending(false);
       }
     };
-    getdata();
+
+    getData();
   }, [fresh]);
 
-  return { data, ispending, error };
+  return { data, isPending, error };
 }
