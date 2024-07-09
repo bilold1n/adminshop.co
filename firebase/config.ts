@@ -16,7 +16,7 @@ export const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storege = getStorage(app);
-export async function DeleteDocitem(path, itemid) {
+export async function DeleteDocitem(path: any, itemid: any) {
   const docref = await deleteDoc(doc(db, path, itemid));
   console.log(docref);
   return "Document was deleted!";
