@@ -8,25 +8,24 @@ interface DataType {
   key: string;
   title: string;
   price: number;
-  image: string;
+  image: any;
   rating: string;
   catygory: string;
-  services: string;
+  services: any;
 }
 
 const TableComponent: React.FC = () => {
   const columns: TableColumnsType<DataType> = [
     {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
+      title: "Title",
+      dataIndex: "title",
+      key: "title",
     },
     {
       title: "Price",
       dataIndex: "price",
       key: "price",
     },
-
     {
       title: "Rating",
       dataIndex: "rating",
@@ -39,8 +38,8 @@ const TableComponent: React.FC = () => {
     },
     {
       title: "Image",
-      dataIndex: "Image",
-      key: "Image",
+      dataIndex: "image",
+      key: "image",
     },
     {
       title: "Services",
@@ -50,13 +49,14 @@ const TableComponent: React.FC = () => {
   ];
 
   const { data } = useGetData("products", false);
-  const data1: DataType[] = data.map((item) => ({
+
+  const malumot: DataType[] = data.map((item) => ({
     key: item.id,
-    name: item.title,
+    title: item.title,
     price: item.price,
     rating: item.rating,
     catygory: item.catygory,
-    Image: <Image src={item.image} alt={item.image} width={100} />,
+    image: <Image src={item.image} alt={item.title} width={100} />,
     services: (
       <div className="flex items-center gap-5">
         <span style={{ zoom: "2" }} className="cursor-pointer">
@@ -73,7 +73,7 @@ const TableComponent: React.FC = () => {
     <Table
       className="w-[1000px] mx-auto"
       columns={columns}
-      dataSource={data1}
+      dataSource={malumot}
       style={{ borderRadius: "12px" }}
     />
   );
