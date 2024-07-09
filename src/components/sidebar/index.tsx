@@ -21,11 +21,6 @@ const items: MenuItem[] = [
     label: <NavLink to={"/dashboard"}>Dashboard</NavLink>,
   },
   {
-    key: "Addproduct",
-    icon: <AppstoreAddOutlined />,
-    label: <NavLink to={"/Addproduct"}>Add Product</NavLink>,
-  },
-  {
     key: "product",
     icon: <ProductOutlined />,
     label: <NavLink to={"/product"}>Products</NavLink>,

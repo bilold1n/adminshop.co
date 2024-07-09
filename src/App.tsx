@@ -7,7 +7,6 @@ import Layout from "./page/layout";
 import Dashboard from "./page/dashboard";
 import Product from "./page/product";
 import Login from "./page/login";
-import Addproduct from "./page/addproduct";
 function App() {
   function ProtectedRoute({ children }: any) {
     const user = localStorage.getItem("user");
@@ -39,10 +38,6 @@ function App() {
         {
           path: "/product",
           element: <Product />,
-        },
-        {
-          path: "/Addproduct",
-          element: <Addproduct />,
         },
       ],
     },
