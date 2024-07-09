@@ -1,8 +1,4 @@
-import {
-  ProductOutlined,
-  AccountBookOutlined,
-  AppstoreAddOutlined,
-} from "@ant-design/icons";
+import { ProductOutlined, AccountBookOutlined } from "@ant-design/icons";
 import { Menu } from "antd";
 import type { MenuProps } from "antd";
 import { NavLink } from "react-router-dom";
