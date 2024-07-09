@@ -62,6 +62,7 @@ const Product: React.FC = () => {
             category: "",
             color: "",
           });
+          setModal2Open(false);
         } catch (error) {
           console.error("Upload failed:", error);
         }
@@ -71,7 +72,6 @@ const Product: React.FC = () => {
     } else {
       message.error("Please fill in one of the lines if you didn't fill it ");
     }
-    setModal2Open(false);
   };
 
   return (
