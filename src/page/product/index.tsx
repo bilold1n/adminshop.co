@@ -43,7 +43,7 @@ export default function Product() {
           </Modal>
         </div>
       </div>
-      <div className="container mt-9">
+      <div className="container mt-8">
         <Table />
       </div>
     </section>
