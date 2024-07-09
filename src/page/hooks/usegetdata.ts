@@ -2,14 +2,14 @@ import { useState, useEffect, useMemo } from "react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "../../../firebase/config";
 
-export default function usegetdata(collectionName, fresh) {
+export default function usegetdata(collectionName: string, fresh: string) {
   const [data, setdata] = useState([]);
   const [ispending, setispending] = useState(true);
   const [error, seterror] = useState({ status: false, massege: "" });
   useEffect(() => {
     const getdata = async () => {
       try {
-        const documen = [];
+        const documen: any = [];
         const querySnapshot = await getDocs(collection(db, collectionName));
         querySnapshot.forEach((doc) => {
           // doc.data() is never undefined for query doc snapshots
@@ -18,7 +18,7 @@ export default function usegetdata(collectionName, fresh) {
         });
         setdata(documen);
       } catch (error) {
-        seterror({ status: true, massage: error.massage });
+        seterror({ status: true, massage: " error.massage" });
       } finally {
         setispending(false);
       }
