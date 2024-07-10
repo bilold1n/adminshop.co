@@ -31,7 +31,7 @@ const TableComponent: React.FC = ({ setfresh1 }: any) => {
       key: "title",
     },
     {
-      title: "Price",
+      title: "Pricee",
       dataIndex: "price",
       key: "price",
     },
