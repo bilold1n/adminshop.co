@@ -15,62 +15,66 @@ const Product: React.FC = () => {
   const [productdata, setproductdata] = useState({
     title: "",
     description: "",
-    image: "",
+    image: [] as string[],
     price: "",
     rating: "",
     category: "",
     color: "",
   });
-  console.log(productdata);
-  const [file, setFile] = useState<FileType[]>([]);
-  console.log(file);
 
+  const [file, setFile] = useState<FileType[]>([]);
   const [modal2Open, setModal2Open] = useState(false);
+
   const onFinish = async () => {
     if (
-      productdata.title != "" &&
-      productdata.description != "" &&
-      productdata.price != "" &&
-      productdata.rating != "" &&
-      productdata.category != "" &&
-      productdata.color != ""
+      productdata.title !== "" &&
+      productdata.description !== "" &&
+      productdata.price !== "" &&
+      productdata.rating !== "" &&
+      productdata.category !== "" &&
+      productdata.color !== ""
     ) {
       if (file.length > 0) {
-        const storageRef = ref(storege, "products/" + file[0].name);
         try {
-          const snapshot = await uploadBytes(storageRef, file[0].originFileObj);
-          console.log(snapshot);
-
-          const url = await getDownloadURL(
-            ref(storege, "products/" + file[0].name)
+          const imageUrls = await Promise.all(
+            file.map(async (element) => {
+              const storageRef = ref(storege, "products/" + element.name);
+              await uploadBytes(storageRef, element.originFileObj);
+              const url = await getDownloadURL(
+                ref(storege, "products/" + element.name)
+              );
+              return url;
+            })
           );
-          console.log(url);
-          setproductdata({ ...productdata, image: url });
-          console.log(url);
 
-          console.log(productdata);
-          const docRef = await addDoc(collection(db, "products"), {
+          const updatedProductData = {
             ...productdata,
-          });
+            image: imageUrls,
+          };
+
+          await addDoc(collection(db, "products"), updatedProductData);
+
           setModal2Open(false);
-          console.log(docRef);
           setproductdata({
             title: "",
             description: "",
-            image: "",
+            image: [],
             price: "",
             rating: "",
             category: "",
             color: "",
           });
+          setFile([]);
+          message.success("Product added successfully!");
         } catch (error) {
           console.error("Upload failed:", error);
+          message.error("Failed to upload image or add product.");
         }
       } else {
         message.error("Please upload an image");
       }
     } else {
-      message.error("Please fill in one of the lines if you didn't fill it ");
+      message.error("Please fill in all fields");
     }
   };
 

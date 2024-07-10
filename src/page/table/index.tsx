@@ -66,7 +66,7 @@ const TableComponent: React.FC = ({ setfresh1 }: any) => {
     price: item.price,
     rating: item.rating,
     catygory: item.category,
-    image: <Image src={item.image} alt={item.title} width={100} />,
+    image: <Image src={item.image} alt={item.image} width={100} />,
     services: (
       <div className="flex items-center gap-5">
         <span style={{ zoom: "2" }} className="cursor-pointer">
