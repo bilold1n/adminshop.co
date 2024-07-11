@@ -1,12 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Form, Input, Select, Modal, message } from "antd";
 import UploadImage from "./uploadimage";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { db, storege } from "../../../firebase/config";
 import { addDoc, collection } from "firebase/firestore";
 import TableComponent from "../table";
+import { filterdata, searchData } from "../store/product.ts";
+import { useDispatch } from "react-redux";
 
 const Product: React.FC = () => {
+  const [search, setsearch] = useState("");
+  const [fresh, setfresh] = useState(false);
   const [productdata, setproductdata] = useState({
     title: "",
     description: "",
@@ -18,8 +22,10 @@ const Product: React.FC = () => {
   });
 
   const [file, setFile] = useState<any[]>([]);
-  const [modal2Open, setModal2Open] = useState(false);
-
+  const [modal2Open, setModal2Open] = useState<any>(false);
+  useEffect(() => {
+    dispatch(searchData(search));
+  }, [search]);
   const onFinish = async () => {
     if (
       productdata.title !== "" &&
@@ -74,7 +80,10 @@ const Product: React.FC = () => {
       message.error("Please fill in all fields");
     }
   };
-
+  const onChange = (value: string) => {
+    dispatch(filterdata(value));
+  };
+  const dispatch = useDispatch();
   return (
     <section>
       <div className="container">
@@ -86,17 +95,14 @@ const Product: React.FC = () => {
                 className="w-[230px]"
                 placeholder="Search"
                 key="search-input"
+                onChange={(e) => setsearch(e.target.value)}
               />
               <Select
-                placeholder="Filter by category"
-                className="w-[180px]"
-                key="filter-category"
+                onChange={onChange}
+                placeholder="Sort by"
+                className="w-[110px]"
+                key="sort-by"
               >
-                <Select.Option value="all" key="all-category">
-                  All
-                </Select.Option>
-              </Select>
-              <Select placeholder="Sort by" className="w-[110px]" key="sort-by">
                 <Select.Option value="rating" key="sort-rating">
                   Rating ⭐
                 </Select.Option>
