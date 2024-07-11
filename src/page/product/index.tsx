@@ -6,11 +6,6 @@ import { db, storege } from "../../../firebase/config";
 import { addDoc, collection } from "firebase/firestore";
 import TableComponent from "../table";
 
-interface FileType {
-  name: string;
-  originFileObj: File;
-}
-
 const Product: React.FC = () => {
   const [productdata, setproductdata] = useState({
     title: "",
@@ -40,6 +35,7 @@ const Product: React.FC = () => {
             file.map(async (element) => {
               const storageRef = ref(storege, "products/" + element.name);
               const snap = await uploadBytes(storageRef, element);
+              console.log(snap);
 
               const url = await getDownloadURL(
                 ref(storege, "products/" + element.name)
