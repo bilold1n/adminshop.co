@@ -45,7 +45,6 @@ export default function UploadImage({
   return (
     <>
       <Upload
-        action="https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload"
         listType="picture-card"
         fileList={fileList}
         onPreview={handlePreview}

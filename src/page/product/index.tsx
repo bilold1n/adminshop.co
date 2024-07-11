@@ -22,7 +22,7 @@ const Product: React.FC = () => {
     color: "",
   });
 
-  const [file, setFile] = useState<FileType[]>([]);
+  const [file, setFile] = useState<any[]>([]);
   const [modal2Open, setModal2Open] = useState(false);
 
   const onFinish = async () => {
@@ -39,7 +39,8 @@ const Product: React.FC = () => {
           const imageUrls = await Promise.all(
             file.map(async (element) => {
               const storageRef = ref(storege, "products/" + element.name);
-              await uploadBytes(storageRef, element.originFileObj);
+              const snap = await uploadBytes(storageRef, element);
+
               const url = await getDownloadURL(
                 ref(storege, "products/" + element.name)
               );
