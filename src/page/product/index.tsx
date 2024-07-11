@@ -10,7 +10,7 @@ import { useDispatch } from "react-redux";
 
 const Product: React.FC = () => {
   const [search, setsearch] = useState("");
-  const [fresh, setfresh] = useState(false);
+  // const [fresh, setfresh] = useState(false);
   const [productdata, setproductdata] = useState({
     title: "",
     description: "",
