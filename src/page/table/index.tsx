@@ -3,11 +3,12 @@ import type { TableColumnsType } from "antd";
 import { Form, Image, Input, message, Modal, Select, Table } from "antd";
 import useGetData from "../hooks/usegetdata";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { DeleteDocitem, storege } from "../../../firebase/config";
+import { db, DeleteDocitem, storege } from "../../../firebase/config";
 import { useDispatch, useSelector } from "react-redux";
 import { getproduct } from "../store/product";
 import UploadImage from "../product/uploadimage";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { doc, setDoc } from "firebase/firestore";
 
 interface DataType {
   key: string;
@@ -28,6 +29,7 @@ const TableComponent: React.FC<TableComponentProps> = ({ setfresh, fresh }) => {
   const dispatch = useDispatch();
   const [malumot, setMalumot] = useState<DataType[]>([]);
   const [modal2Open, setModal2Open] = useState<boolean>(false);
+  const [editProductId, setEditProductId] = useState<string | null>(null);
 
   const handleDelete = async (id: any) => {
     const status = await DeleteDocitem("products", id);
@@ -89,7 +91,7 @@ const TableComponent: React.FC<TableComponentProps> = ({ setfresh, fresh }) => {
       services: (
         <div className="flex items-center gap-5">
           <span
-            onClick={() => setModal2Open(true)}
+            onClick={() => onedit(item.id)}
             style={{ zoom: "2" }}
             className="cursor-pointer"
           >
@@ -126,6 +128,24 @@ const TableComponent: React.FC<TableComponentProps> = ({ setfresh, fresh }) => {
     category: "",
     color: "",
   });
+
+  const onedit = (id: any) => {
+    const product = basy.find((item: any) => item.id === id);
+    if (product) {
+      setProductData({
+        title: product.title,
+        description: product.description,
+        image: product.image,
+        price: product.price,
+        rating: product.rating,
+        category: product.category,
+        color: product.color,
+      });
+      setEditProductId(id);
+      setModal2Open(true);
+    }
+  };
+
   const onFinish = async () => {
     if (
       productdata.title !== "" &&
@@ -155,9 +175,12 @@ const TableComponent: React.FC<TableComponentProps> = ({ setfresh, fresh }) => {
             image: imageUrls,
           };
           console.log(updatedProductData);
-
-          // await addDoc(collection(db, "products"), updatedProductData);
-
+          if (updatedProductData && editProductId) {
+            await setDoc(
+              doc(db, "products", editProductId),
+              updatedProductData
+            );
+          }
           setModal2Open(false);
           setProductData({
             title: "",
@@ -169,11 +192,12 @@ const TableComponent: React.FC<TableComponentProps> = ({ setfresh, fresh }) => {
             color: "",
           });
           setFile([]);
-          message.success("Product added successfully!");
+          setEditProductId(null);
+          message.success("Product updated successfully!");
           setfresh((prev) => !prev);
         } catch (error) {
           console.error("Upload failed:", error);
-          message.error("Failed to upload image or add product.");
+          message.error("Failed to upload image or update product.");
         }
       } else {
         message.error("Please upload an image");
@@ -182,6 +206,7 @@ const TableComponent: React.FC<TableComponentProps> = ({ setfresh, fresh }) => {
       message.error("Please fill in all fields");
     }
   };
+
   const [file, setFile] = useState<any[]>([]);
 
   return (
