@@ -175,7 +175,7 @@ const Product: React.FC = () => {
                 }
               />
               <Select
-                placeholder="Filter by category"
+                placeholder="Category"
                 className="w-full"
                 key="filter-category-select"
                 value={productdata.category}
@@ -192,18 +192,6 @@ const Product: React.FC = () => {
               </Select>
               <Input
                 required
-                placeholder="Description"
-                key="description-input"
-                value={productdata.description}
-                onChange={(e) =>
-                  setproductdata({
-                    ...productdata,
-                    description: e.target.value,
-                  })
-                }
-              />
-              <Input
-                required
                 type="number"
                 placeholder="rating"
                 key="rating-input"
@@ -212,6 +200,19 @@ const Product: React.FC = () => {
                   setproductdata({
                     ...productdata,
                     rating: e.target.value,
+                  })
+                }
+              />
+
+              <Input.TextArea
+                required
+                placeholder="Description"
+                key="description-input"
+                value={productdata.description}
+                onChange={(e) =>
+                  setproductdata({
+                    ...productdata,
+                    description: e.target.value,
                   })
                 }
               />
