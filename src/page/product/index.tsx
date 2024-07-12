@@ -10,7 +10,7 @@ import { useDispatch } from "react-redux";
 
 const Product: React.FC = () => {
   const [search, setsearch] = useState("");
-  // const [fresh, setfresh] = useState(false);
+  const [fresh, setfresh] = useState(false);
   const [productdata, setproductdata] = useState({
     title: "",
     description: "",
@@ -69,6 +69,7 @@ const Product: React.FC = () => {
           });
           setFile([]);
           message.success("Product added successfully!");
+          setfresh((prev) => !prev);
         } catch (error) {
           console.error("Upload failed:", error);
           message.error("Failed to upload image or add product.");
@@ -203,6 +204,7 @@ const Product: React.FC = () => {
               />
               <Input
                 required
+                type="number"
                 placeholder="rating"
                 key="rating-input"
                 value={productdata.rating}
@@ -219,7 +221,7 @@ const Product: React.FC = () => {
         </div>
       </div>
       <div className="container mt-8">
-        <TableComponent />
+        <TableComponent setfresh={setfresh} fresh={fresh} />
       </div>
     </section>
   );

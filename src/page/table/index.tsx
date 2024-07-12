@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import type { TableColumnsType } from "antd";
-import { Image, Table } from "antd";
+import { Form, Image, Input, message, Modal, Select, Table } from "antd";
 import useGetData from "../hooks/usegetdata";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { DeleteDocitem } from "../../../firebase/config";
+import { DeleteDocitem, storege } from "../../../firebase/config";
 import { useDispatch, useSelector } from "react-redux";
 import { getproduct } from "../store/product";
+import UploadImage from "../product/uploadimage";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 
 interface DataType {
   key: string;
@@ -13,17 +15,21 @@ interface DataType {
   price: number;
   image: any;
   rating: string;
-  catygory: string;
+  category: string;
   services: any;
 }
 
-const TableComponent: React.FC = ({ setfresh1 }: any) => {
-  console.log(setfresh1);
-  const dispatch = useDispatch();
-  const [fresh, setfresh] = useState(false);
-  const [malumot, setMalumot] = useState<DataType[]>([]);
+interface TableComponentProps {
+  setfresh: React.Dispatch<React.SetStateAction<boolean>>;
+  fresh: boolean;
+}
 
-  const hendledelete = async (id: any) => {
+const TableComponent: React.FC<TableComponentProps> = ({ setfresh, fresh }) => {
+  const dispatch = useDispatch();
+  const [malumot, setMalumot] = useState<DataType[]>([]);
+  const [modal2Open, setModal2Open] = useState<boolean>(false);
+
+  const handleDelete = async (id: any) => {
     const status = await DeleteDocitem("products", id);
     console.log(status);
     setfresh((prev) => !prev);
@@ -36,7 +42,7 @@ const TableComponent: React.FC = ({ setfresh1 }: any) => {
       key: "title",
     },
     {
-      title: "Pricee",
+      title: "Price",
       dataIndex: "price",
       key: "price",
     },
@@ -46,9 +52,9 @@ const TableComponent: React.FC = ({ setfresh1 }: any) => {
       key: "rating",
     },
     {
-      title: "Catygory",
-      dataIndex: "catygory",
-      key: "catygory",
+      title: "Category",
+      dataIndex: "category",
+      key: "category",
     },
     {
       title: "Image",
@@ -78,11 +84,15 @@ const TableComponent: React.FC = ({ setfresh1 }: any) => {
       title: item.title,
       price: item.price,
       rating: item.rating,
-      catygory: item.category,
+      category: item.category,
       image: <Image src={item.image} alt={item.image} width={100} />,
       services: (
         <div className="flex items-center gap-5">
-          <span style={{ zoom: "2" }} className="cursor-pointer">
+          <span
+            onClick={() => setModal2Open(true)}
+            style={{ zoom: "2" }}
+            className="cursor-pointer"
+          >
             <EditOutlined className="text-[#edcb34]" />
           </span>
           <span
@@ -91,7 +101,7 @@ const TableComponent: React.FC = ({ setfresh1 }: any) => {
                 "Haqiqatdan ham productni o'chirishni xohlaysizmi?"
               );
               if (isConfirmed) {
-                hendledelete(item.id);
+                handleDelete(item.id);
               } else {
                 alert("o'chirish bekor qilindi");
               }
@@ -107,13 +117,173 @@ const TableComponent: React.FC = ({ setfresh1 }: any) => {
     setMalumot(updatedMalumot);
   }, [basy]);
 
+  const [productdata, setProductData] = useState({
+    title: "",
+    description: "",
+    image: [] as string[],
+    price: "",
+    rating: "",
+    category: "",
+    color: "",
+  });
+  const onFinish = async () => {
+    if (
+      productdata.title !== "" &&
+      productdata.description !== "" &&
+      productdata.price !== "" &&
+      productdata.rating !== "" &&
+      productdata.category !== "" &&
+      productdata.color !== ""
+    ) {
+      if (file.length > 0) {
+        try {
+          const imageUrls = await Promise.all(
+            file.map(async (element) => {
+              const storageRef = ref(storege, "products/" + element.name);
+              const snap = await uploadBytes(storageRef, element);
+              console.log(snap);
+
+              const url = await getDownloadURL(
+                ref(storege, "products/" + element.name)
+              );
+              return url;
+            })
+          );
+
+          const updatedProductData = {
+            ...productdata,
+            image: imageUrls,
+          };
+          console.log(updatedProductData);
+
+          // await addDoc(collection(db, "products"), updatedProductData);
+
+          setModal2Open(false);
+          setProductData({
+            title: "",
+            description: "",
+            image: [],
+            price: "",
+            rating: "",
+            category: "",
+            color: "",
+          });
+          setFile([]);
+          message.success("Product added successfully!");
+          setfresh((prev) => !prev);
+        } catch (error) {
+          console.error("Upload failed:", error);
+          message.error("Failed to upload image or add product.");
+        }
+      } else {
+        message.error("Please upload an image");
+      }
+    } else {
+      message.error("Please fill in all fields");
+    }
+  };
+  const [file, setFile] = useState<any[]>([]);
+
   return (
-    <Table
-      className="max-w-[1100px] mx-auto max-h-[500px] overflow-y-scroll"
-      columns={columns}
-      dataSource={malumot}
-      style={{ borderRadius: "12px" }}
-    />
+    <>
+      <Table
+        className="max-w-[1100px] mx-auto max-h-[500px] overflow-y-scroll bg-[#fff]"
+        columns={columns}
+        dataSource={malumot}
+        style={{ borderRadius: "12px" }}
+      />
+      <Modal
+        title={
+          <p className="text-2xl font-bold text-center mb-[20px]">
+            Change the product
+          </p>
+        }
+        centered
+        width={450}
+        open={modal2Open}
+        onOk={onFinish}
+        onCancel={() => setModal2Open(false)}
+        key="add-product-modal"
+      >
+        <Form
+          onFinish={onFinish}
+          className="container flex flex-col items-center gap-5 justify-center"
+          key="add-product-form"
+        >
+          <Input
+            required
+            placeholder="Title"
+            key="title-input"
+            value={productdata.title}
+            onChange={(e) =>
+              setProductData({ ...productdata, title: e.target.value })
+            }
+          />
+          <Input
+            value={productdata.price}
+            onChange={(e) =>
+              setProductData({ ...productdata, price: e.target.value })
+            }
+            required
+            type="number"
+            minLength={4}
+            placeholder="Price"
+            key="price-input"
+          />
+          <Input
+            type="color"
+            required
+            className="cursor-pointer"
+            key="color-input"
+            value={productdata.color}
+            onChange={(e) =>
+              setProductData({ ...productdata, color: e.target.value })
+            }
+          />
+          <Select
+            placeholder="Filter by category"
+            className="w-full"
+            key="filter-category-select"
+            value={productdata.category}
+            onChange={(value) =>
+              setProductData({ ...productdata, category: value })
+            }
+          >
+            <Select.Option value="men" key="men-category">
+              Men
+            </Select.Option>
+            <Select.Option value="women" key="women-category">
+              Women
+            </Select.Option>
+          </Select>
+          <Input
+            required
+            placeholder="Description"
+            key="description-input"
+            value={productdata.description}
+            onChange={(e) =>
+              setProductData({
+                ...productdata,
+                description: e.target.value,
+              })
+            }
+          />
+          <Input
+            required
+            placeholder="rating"
+            key="rating-input"
+            value={productdata.rating}
+            onChange={(e) =>
+              setProductData({
+                ...productdata,
+                rating: e.target.value,
+              })
+            }
+          />
+          <UploadImage setFile={setFile} key="upload-image" />
+        </Form>
+      </Modal>
+    </>
   );
 };
 
