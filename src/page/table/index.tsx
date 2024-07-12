@@ -1,6 +1,15 @@
 import React, { useState, useEffect } from "react";
 import type { TableColumnsType } from "antd";
-import { Form, Image, Input, message, Modal, Select, Table } from "antd";
+import {
+  Button,
+  Form,
+  Image,
+  Input,
+  message,
+  Modal,
+  Select,
+  Table,
+} from "antd";
 import useGetData from "../hooks/usegetdata";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { db, DeleteDocitem, storege } from "../../../firebase/config";
@@ -18,6 +27,7 @@ interface DataType {
   rating: string;
   category: string;
   services: any;
+  color: string;
 }
 
 interface TableComponentProps {
@@ -59,10 +69,16 @@ const TableComponent: React.FC<TableComponentProps> = ({ setfresh, fresh }) => {
       key: "category",
     },
     {
+      title: "Color",
+      dataIndex: "color",
+      key: "color",
+    },
+    {
       title: "Image",
       dataIndex: "image",
       key: "image",
     },
+
     {
       title: "Services",
       dataIndex: "services",
@@ -85,34 +101,48 @@ const TableComponent: React.FC<TableComponentProps> = ({ setfresh, fresh }) => {
       key: item.id,
       title: item.title,
       price: item.price,
+      color: (
+        <Button
+          style={{
+            height: "20px",
+            backgroundColor: item.color,
+            paddingInline: "10px",
+            borderRadius: "50%",
+          }}
+        ></Button>
+      ),
       rating: item.rating,
       category: item.category,
       image: <Image src={item.image} alt={item.image} width={100} />,
       services: (
         <div className="flex items-center gap-5">
-          <span
-            onClick={() => onedit(item.id)}
-            style={{ zoom: "2" }}
-            className="cursor-pointer"
-          >
-            <EditOutlined className="text-[#edcb34]" />
-          </span>
-          <span
-            onClick={() => {
-              const isConfirmed = window.confirm(
-                "Haqiqatdan ham productni o'chirishni xohlaysizmi?"
-              );
-              if (isConfirmed) {
-                handleDelete(item.id);
-              } else {
-                alert("o'chirish bekor qilindi");
-              }
-            }}
-            style={{ zoom: "2" }}
-            className="cursor-pointer"
-          >
-            <DeleteOutlined style={{ color: "red" }} />
-          </span>
+          <Button className="w-8 h-8">
+            <span
+              onClick={() => onedit(item.id)}
+              style={{ zoom: "1.5" }}
+              className="cursor-pointer"
+            >
+              <EditOutlined className="text-[#edcb34]" />
+            </span>
+          </Button>
+          <Button className="w-8 h-8">
+            <span
+              onClick={() => {
+                const isConfirmed = window.confirm(
+                  "Haqiqatdan ham productni o'chirishni xohlaysizmi?"
+                );
+                if (isConfirmed) {
+                  handleDelete(item.id);
+                } else {
+                  alert("o'chirish bekor qilindi");
+                }
+              }}
+              style={{ zoom: "1.5" }}
+              className="cursor-pointer"
+            >
+              <DeleteOutlined style={{ color: "red" }} />
+            </span>
+          </Button>
         </div>
       ),
     }));
