@@ -32,7 +32,7 @@ export default function UploadImage({
   };
 
   const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) => {
-    setFileList(newFileList);
+    setFileList(newFileList.map((file) => ({ ...file, status: "done" })));
     setFile(newFileList.map((file) => file.originFileObj));
   };
 
