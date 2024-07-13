@@ -39,7 +39,7 @@ export default function UploadImage({
   const uploadButton = (
     <button style={{ border: 0, background: "none" }} type="button">
       <PlusOutlined />
-      <div style={{ marginTop: 8 }}>Upload</div>
+      <div style={{ marginTop: 8 }}>Upload Image</div>
     </button>
   );
   return (

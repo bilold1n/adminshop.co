@@ -9,6 +9,9 @@ import {
   Modal,
   Select,
   Table,
+  Checkbox,
+  Col,
+  Row,
 } from "antd";
 import useGetData from "../hooks/usegetdata";
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
@@ -18,6 +21,7 @@ import { getproduct } from "../store/product";
 import UploadImage from "../product/uploadimage";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { doc, setDoc } from "firebase/firestore";
+// import type { CheckboxValueType } from "antd/es/checkbox/Group";
 
 interface DataType {
   key: string;
@@ -28,6 +32,7 @@ interface DataType {
   category: string;
   services: any;
   color: string;
+  count: string;
 }
 
 interface TableComponentProps {
@@ -78,7 +83,6 @@ const TableComponent: React.FC<TableComponentProps> = ({ setfresh, fresh }) => {
       dataIndex: "image",
       key: "image",
     },
-
     {
       title: "Services",
       dataIndex: "services",
@@ -113,7 +117,13 @@ const TableComponent: React.FC<TableComponentProps> = ({ setfresh, fresh }) => {
       ),
       rating: item.rating,
       category: item.category,
-      image: <Image src={item.image} alt={item.image} width={100} />,
+      image: (
+        <div className="flex gap-2">
+          {item.image.map((image: any) => (
+            <Image src={image} alt={image} width={80} />
+          ))}
+        </div>
+      ),
       services: (
         <div className="flex items-center gap-5">
           <Button className="w-8 h-8">
@@ -157,7 +167,13 @@ const TableComponent: React.FC<TableComponentProps> = ({ setfresh, fresh }) => {
     rating: "",
     category: "",
     color: "",
+    size: [] as any[],
+    count: "",
   });
+
+  const onChangeSize = (checkedValues: any[]) => {
+    setProductData({ ...productdata, size: checkedValues });
+  };
 
   const onedit = (id: any) => {
     const product = basy.find((item: any) => item.id === id);
@@ -170,6 +186,8 @@ const TableComponent: React.FC<TableComponentProps> = ({ setfresh, fresh }) => {
         rating: product.rating,
         category: product.category,
         color: product.color,
+        size: product.size,
+        count: product.count,
       });
       setEditProductId(id);
       setModal2Open(true);
@@ -183,54 +201,55 @@ const TableComponent: React.FC<TableComponentProps> = ({ setfresh, fresh }) => {
       productdata.price !== "" &&
       productdata.rating !== "" &&
       productdata.category !== "" &&
+      productdata.count !== "" &&
       productdata.color !== ""
     ) {
-      if (file.length > 0) {
-        try {
-          const imageUrls = await Promise.all(
-            file.map(async (element) => {
-              const storageRef = ref(storege, "products/" + element.name);
-              const snap = await uploadBytes(storageRef, element);
-              console.log(snap);
+      try {
+        const imageUrls = await Promise.all(
+          file.length > 0
+            ? file.map(async (element) => {
+                const storageRef = ref(storege, "products/" + element.name);
+                const snap = await uploadBytes(storageRef, element);
+                console.log(snap);
 
-              const url = await getDownloadURL(
-                ref(storege, "products/" + element.name)
-              );
-              return url;
-            })
-          );
+                const url = await getDownloadURL(
+                  ref(storege, "products/" + element.name)
+                );
+                return url;
+              })
+            : productdata.image.map(async (element) => {
+                const url = element;
+                return url;
+              })
+        );
 
-          const updatedProductData = {
-            ...productdata,
-            image: imageUrls,
-          };
-          console.log(updatedProductData);
-          if (updatedProductData && editProductId) {
-            await setDoc(
-              doc(db, "products", editProductId),
-              updatedProductData
-            );
-          }
-          setModal2Open(false);
-          setProductData({
-            title: "",
-            description: "",
-            image: [],
-            price: "",
-            rating: "",
-            category: "",
-            color: "",
-          });
-          setFile([]);
-          setEditProductId(null);
-          message.success("Product updated successfully!");
-          setfresh((prev) => !prev);
-        } catch (error) {
-          console.error("Upload failed:", error);
-          message.error("Failed to upload image or update product.");
+        const updatedProductData = {
+          ...productdata,
+          image: imageUrls,
+        };
+        console.log(updatedProductData);
+        if (updatedProductData && editProductId) {
+          await setDoc(doc(db, "products", editProductId), updatedProductData);
         }
-      } else {
-        message.error("Please upload an image");
+        setModal2Open(false);
+        setProductData({
+          title: "",
+          description: "",
+          image: [],
+          price: "",
+          rating: "",
+          category: "",
+          color: "",
+          size: [],
+          count: "",
+        });
+        setFile([]);
+        setEditProductId(null);
+        message.success("Product updated successfully!");
+        setfresh((prev) => !prev);
+      } catch (error) {
+        console.error("Upload failed:", error);
+        message.error("Failed to upload image or update product.");
       }
     } else {
       message.error("Please fill in all fields");
@@ -258,83 +277,155 @@ const TableComponent: React.FC<TableComponentProps> = ({ setfresh, fresh }) => {
         open={modal2Open}
         onOk={onFinish}
         onCancel={() => setModal2Open(false)}
-        key="add-product-modal"
+        key="edit-product-modal"
       >
         <Form
           onFinish={onFinish}
-          className="container flex flex-col items-center gap-5 justify-center"
-          key="add-product-form"
+          className="container flex flex-col items-center gap-2 justify-center"
+          key="edit-product-form"
         >
-          <Input
-            required
-            placeholder="Title"
-            key="title-input"
-            value={productdata.title}
-            onChange={(e) =>
-              setProductData({ ...productdata, title: e.target.value })
-            }
-          />
-          <Input
-            value={productdata.price}
-            onChange={(e) =>
-              setProductData({ ...productdata, price: e.target.value })
-            }
-            required
-            type="number"
-            minLength={4}
-            placeholder="Price"
-            key="price-input"
-          />
-          <Input
-            type="color"
-            required
-            className="cursor-pointer"
-            key="color-input"
-            value={productdata.color}
-            onChange={(e) =>
-              setProductData({ ...productdata, color: e.target.value })
-            }
-          />
-          <Select
-            placeholder="Filter by category"
-            className="w-full"
-            key="filter-category-select"
-            value={productdata.category}
-            onChange={(value) =>
-              setProductData({ ...productdata, category: value })
-            }
-          >
-            <Select.Option value="men" key="men-category">
-              Men
-            </Select.Option>
-            <Select.Option value="women" key="women-category">
-              Women
-            </Select.Option>
-          </Select>
-          <Input
-            required
-            placeholder="Description"
-            key="description-input"
-            value={productdata.description}
-            onChange={(e) =>
-              setProductData({
-                ...productdata,
-                description: e.target.value,
-              })
-            }
-          />
-          <Input
-            required
-            placeholder="rating"
-            key="rating-input"
-            value={productdata.rating}
-            onChange={(e) =>
-              setProductData({
-                ...productdata,
-                rating: e.target.value,
-              })
-            }
-          />
+          <div className="flex flex-col gap-1 w-full">
+            <p>Product Title</p>
+            <Input
+              required
+              placeholder="Title"
+              key="title-input"
+              value={productdata.title}
+              onChange={(e) =>
+                setProductData({ ...productdata, title: e.target.value })
+              }
+            />
+          </div>
+          <div className="flex flex-col gap-1 w-full">
+            <p>Product Price</p>
+            <Input
+              value={productdata.price}
+              onChange={(e) =>
+                setProductData({ ...productdata, price: e.target.value })
+              }
+              required
+              type="number"
+              placeholder="Price"
+              key="price-input"
+            />
+          </div>
+          <div className="flex flex-col gap-1 w-full">
+            <p>Product Color</p>
+            <Input
+              type="color"
+              required
+              className="cursor-pointer"
+              key="color-input"
+              value={productdata.color}
+              onChange={(e) =>
+                setProductData({ ...productdata, color: e.target.value })
+              }
+            />
+          </div>
+          <div className="flex flex-col gap-1 w-full">
+            <p>Product Category</p>
+            <Select
+              placeholder="Category"
+              className="w-full"
+              key="filter-category-select"
+              value={productdata.category}
+              onChange={(value) =>
+                setProductData({ ...productdata, category: value })
+              }
+            >
+              <Select.Option value="men" key="men-category">
+                Men
+              </Select.Option>
+              <Select.Option value="women" key="women-category">
+                Women
+              </Select.Option>
+            </Select>
+          </div>
+          <div className="flex flex-col gap-1 w-full">
+            <p>Product Description</p>
+            <Input.TextArea
+              required
+              placeholder="Description"
+              key="description-input"
+              value={productdata.description}
+              onChange={(e) =>
+                setProductData({
+                  ...productdata,
+                  description: e.target.value,
+                })
+              }
+            />
+          </div>
+          <div className="flex gap-2 w-full text-center items-center">
+            <div className="w-2/5 flex flex-col gap-1">
+              <p>Product Rating</p>
+              <Select
+                className="min-w-22"
+                value={productdata.rating}
+                onChange={(value) =>
+                  setProductData({
+                    ...productdata,
+                    rating: value,
+                  })
+                }
+                showSearch
+                placeholder="Select rating"
+                filterOption={(input, option) =>
+                  (option?.label ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+                options={[
+                  { value: "1", label: "1" },
+                  { value: "1.5", label: "1.5" },
+                  { value: "2", label: "2" },
+                  { value: "2.5", label: "2.5" },
+                  { value: "3", label: "3" },
+                  { value: "3.5", label: "3.5" },
+                  { value: "4", label: "4" },
+                  { value: "4.5", label: "4.5" },
+                  { value: "5", label: "5" },
+                ]}
+              />
+            </div>
+            <div className="w-full flex flex-col gap-1">
+              <p className="text-start">Product Count</p>
+              <Input
+                value={productdata.count}
+                type="number"
+                onChange={(e) =>
+                  setProductData({
+                    ...productdata,
+                    count: e.target.value,
+                  })
+                }
+                placeholder="Product Count"
+              />
+            </div>
+          </div>
+          <div className="flex flex-col gap-1 w-full text-center items-center">
+            <p className="text-start">Change Size</p>
+            <Checkbox.Group
+              style={{ width: "100%" }}
+              onChange={onChangeSize}
+              value={productdata.size}
+            >
+              <Row>
+                <Col span={6}>
+                  <Checkbox value="small">Small</Checkbox>
+                </Col>
+                <Col span={6}>
+                  <Checkbox value="medium">Medium</Checkbox>
+                </Col>
+                <Col span={6}>
+                  <Checkbox value="large">Large</Checkbox>
+                </Col>
+                <Col span={6}>
+                  <Checkbox value="XXlarge">XXLarge</Checkbox>
+                </Col>
+              </Row>
+            </Checkbox.Group>
+          </div>
           <UploadImage setFile={setFile} key="upload-image" />
         </Form>
       </Modal>
