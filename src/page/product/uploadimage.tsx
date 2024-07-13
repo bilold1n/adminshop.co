@@ -50,7 +50,7 @@ export default function UploadImage({
         onPreview={handlePreview}
         onChange={handleChange}
       >
-        {fileList.length >= 8 ? null : uploadButton}
+        {fileList.length >= 4 ? null : uploadButton}
       </Upload>
       {previewImage && (
         <Image
