@@ -303,7 +303,7 @@ const Product: React.FC = () => {
                 </Checkbox.Group>
               </div>
 
-              <UploadImage setFile={setFile} key="upload-image" />
+              <UploadImage setvalue={[]} setFile={setFile} key="upload-image" />
             </Form>
           </Modal>
         </div>

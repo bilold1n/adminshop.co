@@ -169,6 +169,7 @@ const TableComponent: React.FC<TableComponentProps> = ({ setfresh, fresh }) => {
     color: "",
     size: [] as any[],
     count: "",
+    fileList: [],
   });
 
   const onChangeSize = (checkedValues: any[]) => {
@@ -188,6 +189,7 @@ const TableComponent: React.FC<TableComponentProps> = ({ setfresh, fresh }) => {
         color: product.color,
         size: product.size,
         count: product.count,
+        fileList: [],
       });
       setEditProductId(id);
       setModal2Open(true);
@@ -242,6 +244,7 @@ const TableComponent: React.FC<TableComponentProps> = ({ setfresh, fresh }) => {
           color: "",
           size: [],
           count: "",
+          fileList: [],
         });
         setFile([]);
         setEditProductId(null);
@@ -426,7 +429,11 @@ const TableComponent: React.FC<TableComponentProps> = ({ setfresh, fresh }) => {
               </Row>
             </Checkbox.Group>
           </div>
-          <UploadImage setFile={setFile} key="upload-image" />
+          <UploadImage
+            setvalue={productdata.fileList}
+            setFile={setFile}
+            key="upload-image"
+          />
         </Form>
       </Modal>
     </>

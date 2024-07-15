@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { PlusOutlined } from "@ant-design/icons";
 import { Image, Upload } from "antd";
 import type { GetProp, UploadFile, UploadProps } from "antd";
@@ -15,13 +15,18 @@ const getBase64 = (file: FileType): Promise<string> =>
 
 export default function UploadImage({
   setFile,
+  setvalue,
 }: {
   setFile: React.Dispatch<React.SetStateAction<any>>;
+  setvalue?: any;
 }) {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [fileList, setFileList] = useState<UploadFile[]>([]);
 
+  useEffect(() => {
+    setFileList(setvalue);
+  }, [setvalue]);
   const handlePreview = async (file: UploadFile) => {
     if (!file.url && !file.preview) {
       file.preview = await getBase64(file.originFileObj as FileType);
