@@ -32,7 +32,7 @@ interface DataType {
   category: string;
   services: any;
   color: string;
-  count: string;
+  amount: string;
 }
 
 interface TableComponentProps {
@@ -168,7 +168,7 @@ const TableComponent: React.FC<TableComponentProps> = ({ setfresh, fresh }) => {
     category: "",
     color: "",
     size: [] as any[],
-    count: "",
+    amount: "",
     fileList: [],
   });
 
@@ -188,7 +188,7 @@ const TableComponent: React.FC<TableComponentProps> = ({ setfresh, fresh }) => {
         category: product.category,
         color: product.color,
         size: product.size,
-        count: product.count,
+        amount: product.count,
         fileList: [],
       });
       setEditProductId(id);
@@ -203,7 +203,7 @@ const TableComponent: React.FC<TableComponentProps> = ({ setfresh, fresh }) => {
       productdata.price !== "" &&
       productdata.rating !== "" &&
       productdata.category !== "" &&
-      productdata.count !== "" &&
+      productdata.amount !== "" &&
       productdata.color !== ""
     ) {
       try {
@@ -243,7 +243,7 @@ const TableComponent: React.FC<TableComponentProps> = ({ setfresh, fresh }) => {
           category: "",
           color: "",
           size: [],
-          count: "",
+          amount: "",
           fileList: [],
         });
         setFile([]);
@@ -394,12 +394,12 @@ const TableComponent: React.FC<TableComponentProps> = ({ setfresh, fresh }) => {
             <div className="w-full flex flex-col gap-1">
               <p className="text-start">Product Count</p>
               <Input
-                value={productdata.count}
+                value={productdata.amount}
                 type="number"
                 onChange={(e) =>
                   setProductData({
                     ...productdata,
-                    count: e.target.value,
+                    amount: e.target.value,
                   })
                 }
                 placeholder="Product Count"
