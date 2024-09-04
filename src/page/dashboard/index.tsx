@@ -1,125 +1,32 @@
 import React from "react";
 import ReactApexChart from "react-apexcharts";
+import useGetData from "../hooks/usegetdata";
 
-const PieChart: React.FC = () => {
-  const pieOptions: any = {
-    chart: {
-      width: 380,
-      type: "pie",
-    },
-    labels: ["Team A", "Team B", "Team C", "Team D", "Team E"],
-    responsive: [
-      {
-        breakpoint: 480,
-        options: {
-          chart: {
-            width: 200,
-          },
-          legend: {
-            position: "bottom",
-          },
-        },
-      },
-    ],
-  };
+const DynamicCharts: React.FC = () => {
+  const { data } = useGetData("products", false);
 
-  const pieSeries = [44, 55, 13, 43, 22];
+  // Ma'lumotlar toifalarini chiqarib olish
+  const categories = data.map((item: any) => item.category);
+  const uniqueCategories = [...new Set(categories)];
 
-  const barOptions: any = {
-    series: [
-      {
-        name: "Inflation",
-        data: [2.3, 3.1, 4.0, 10.1, 4.0, 3.6, 3.2, 2.3, 1.4, 0.8, 0.5, 8.9],
-      },
-    ],
-    chart: {
-      height: 350,
-      type: "bar",
-    },
-    plotOptions: {
-      bar: {
-        borderRadius: 10,
-        dataLabels: {
-          position: "top",
-        },
-      },
-    },
-    dataLabels: {
-      enabled: true,
-      formatter: function (val: number) {
-        return val + "%";
-      },
-      offsetY: -20,
-      style: {
-        fontSize: "12px",
-        colors: ["#ffffff88"],
-      },
-    },
-    xaxis: {
-      categories: [
-        "Jan",
-        "Feb",
-        "Mar",
-        "Apr",
-        "May",
-        "Jun",
-        "Jul",
-        "Aug",
-        "Sep",
-        "Oct",
-        "Nov",
-        "Dec",
-      ],
-      position: "top",
-      axisBorder: {
-        show: false,
-      },
-      axisTicks: {
-        show: false,
-      },
-      crosshairs: {
-        fill: {
-          type: "gradient",
-          gradient: {
-            colorFrom: "#D8E3F0",
-            colorTo: "#BED1E6",
-            stops: [0, 100],
-            opacityFrom: 0.4,
-            opacityTo: 0.5,
-          },
-        },
-      },
-      tooltip: {
-        enabled: true,
-      },
-    },
-    yaxis: {
-      axisBorder: {
-        show: false,
-      },
-      axisTicks: {
-        show: false,
-      },
-      labels: {
-        show: false,
-        formatter: function (val: number) {
-          return val + "%";
-        },
-      },
-    },
-    title: {
-      text: "One year statistics of shop.co online magazine",
-      floating: true,
-      offsetY: 330,
-      align: "center",
-      style: {
-        color: "#ffffff99",
-      },
-    },
-  };
+  // Har bir toifa uchun toifalangan ma'lumotlarni olish
+  const categoryData = uniqueCategories.map((category) => {
+    const count = data.filter((item: any) => item.category === category).length;
+    return { category, count };
+  });
 
-  const radialOptions: any = {
-    series: [17],
+  // Rating bo'yicha ma'lumotlarni olish
+  const ratings = data.map((item: any) => item.rating);
+  const uniqueRatings = [...new Set(ratings)];
+
+  const ratingData = uniqueRatings.map((rating) => {
+    const count = data.filter((item: any) => item.rating === rating).length;
+    return { rating, count };
+  });
+
+  // Radial diagramma uchun umumiy sozlamalar
+  const generateRadialOptions: any = (category: string, value: number) => ({
+    series: [value],
     chart: {
       height: 340,
       type: "radialBar",
@@ -139,9 +46,7 @@ const PieChart: React.FC = () => {
             offsetY: 76,
             fontSize: "22px",
             color: "#ffffff",
-            formatter: function (val: number) {
-              return val + "%";
-            },
+            formatter: (val: number) => `${val}%`,
           },
         },
       },
@@ -160,47 +65,119 @@ const PieChart: React.FC = () => {
     stroke: {
       dashArray: 4,
     },
-    labels: ["Median Ratioy"],
-  };
+    labels: [category],
+  });
+
+  const radialCharts = categoryData.map((catData, index) => (
+    <div id={`radial-chart-${index}`} key={index}>
+      <ReactApexChart
+        options={generateRadialOptions(
+          catData.category,
+          (catData.count / data.length) * 100
+        )}
+        series={[(catData.count / data.length) * 100]}
+        type="radialBar"
+        height={340}
+      />
+    </div>
+  ));
 
   return (
     <div className="overflow-y-scroll h-[84vh]">
       <div id="bar-chart">
         <ReactApexChart
-          options={barOptions}
-          series={barOptions.series}
+          options={{
+            chart: { height: 350, type: "bar" },
+            series: [
+              {
+                name: "Inflation",
+                data: [
+                  2.3, 3.1, 4.0, 10.1, 4.0, 3.6, 3.2, 2.3, 1.4, 0.8, 0.5, 8.9,
+                ],
+              },
+            ],
+            plotOptions: {
+              bar: { borderRadius: 10, dataLabels: { position: "top" } },
+            },
+            dataLabels: {
+              enabled: true,
+              formatter: (val: number) => `${val}%`,
+              offsetY: -20,
+              style: { fontSize: "12px", colors: ["#ffffff88"] },
+            },
+            xaxis: {
+              categories: [
+                "Jan",
+                "Feb",
+                "Mar",
+                "Apr",
+                "May",
+                "Jun",
+                "Jul",
+                "Aug",
+                "Sep",
+                "Oct",
+                "Nov",
+                "Dec",
+              ],
+              position: "top",
+              axisBorder: { show: false },
+              axisTicks: { show: false },
+              crosshairs: {
+                fill: {
+                  type: "gradient",
+                  gradient: {
+                    colorFrom: "#D8E3F0",
+                    colorTo: "#BED1E6",
+                    stops: [0, 100],
+                    opacityFrom: 0.4,
+                    opacityTo: 0.5,
+                  },
+                },
+              },
+              tooltip: { enabled: true },
+            },
+            yaxis: {
+              axisBorder: { show: false },
+              axisTicks: { show: false },
+              labels: { show: false, formatter: (val: number) => `${val}%` },
+            },
+            title: {
+              text: "One year statistics of shop.co online magazine",
+              floating: true,
+              offsetY: 330,
+              align: "center",
+              style: { color: "#ffffff99" },
+            },
+          }}
+          series={[
+            {
+              name: "Inflation",
+              data: [
+                2.3, 3.1, 4.0, 10.1, 4.0, 3.6, 3.2, 2.3, 1.4, 0.8, 0.5, 8.9,
+              ],
+            },
+          ]}
           type="bar"
-          height={barOptions.chart.height}
+          height={350}
         />
       </div>
-      <div className="flex justify-between">
+      <div className="flex justify-between flex-wrap">
         <div id="pie-chart">
           <ReactApexChart
-            options={pieOptions}
-            series={pieSeries}
+            options={{
+              chart: { width: 380, type: "pie" },
+              labels: uniqueRatings,
+            }}
+            series={ratingData.map((rateData) => rateData.count)}
             type="pie"
-            width={pieOptions.chart.width}
+            width={350}
           />
         </div>
-        <div id="radial-chart-1">
-          <ReactApexChart
-            options={radialOptions}
-            series={radialOptions.series}
-            type="radialBar"
-            height={radialOptions.chart.height}
-          />
-        </div>
-        <div id="radial-chart-2">
-          <ReactApexChart
-            options={radialOptions}
-            series={radialOptions.series}
-            type="radialBar"
-            height={radialOptions.chart.height}
-          />
-        </div>
+        {radialCharts}
       </div>
     </div>
   );
 };
 
-export default PieChart;
+export default DynamicCharts;

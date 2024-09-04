@@ -178,6 +178,8 @@ const TableComponent: React.FC<TableComponentProps> = ({ setfresh, fresh }) => {
 
   const onedit = (id: any) => {
     const product = basy.find((item: any) => item.id === id);
+    console.log(product);
+
     if (product) {
       setProductData({
         title: product.title,
@@ -188,7 +190,7 @@ const TableComponent: React.FC<TableComponentProps> = ({ setfresh, fresh }) => {
         category: product.category,
         color: product.color,
         size: product.size,
-        amount: product.count,
+        amount: product.amount,
         fileList: [],
       });
       setEditProductId(id);
@@ -338,9 +340,6 @@ const TableComponent: React.FC<TableComponentProps> = ({ setfresh, fresh }) => {
             >
               <Select.Option value="men" key="men-category">
                 Men
-              </Select.Option>
-              <Select.Option value="women" key="women-category">
-                Women
               </Select.Option>
             </Select>
           </div>
